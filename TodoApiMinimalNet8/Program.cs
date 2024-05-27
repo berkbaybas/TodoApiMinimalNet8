@@ -40,10 +40,13 @@ app.MapPut("/todoitems/{id}", async (int id, TodoItem inputTodo, TodoDbContext c
 
 app.MapDelete("/todoitems/{id}", async (int id, TodoDbContext context) =>
 {
-    var todo = await context.TodoItems.FindAsync(id);
-    context.Remove(todo);
-    await context.SaveChangesAsync();
-    return Results.NoContent();
+    if (await context.TodoItems.FindAsync(id) is TodoItem todo)
+    {
+        context.TodoItems.Remove(todo);
+        await context.SaveChangesAsync();
+        return Results.NoContent();
+    }
+    return Results.NotFound();
 });
 
 app.Run(); // Start listen web requests
